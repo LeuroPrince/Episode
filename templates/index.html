@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDF Editor</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <section class="tool-panel editor-panel">
+        <div>
+          <h1>PDF Editor</h1>
+          <p class="muted">整理页面、加入图片或 PDF，然后导出为一个新文件。</p>
+        </div>
+
+        <label class="drop-zone" id="dropZone">
+          <input id="fileInput" type="file" multiple accept=".pdf,image/*">
+          <span>选择或拖入文件</span>
+          <small>PDF、PNG、JPG、WEBP、TIFF</small>
+        </label>
+
+        <div class="field">
+          <label for="filename">导出文件名</label>
+          <input id="filename" type="text" value="edited.pdf" autocomplete="off">
+        </div>
+
+        <div class="actions">
+          <button id="newProjectButton" class="secondary-button" type="button">新建工作区</button>
+          <button id="exportButton" type="button">保存 PDF</button>
+          <button id="openFolderButton" class="path-button" type="button" hidden></button>
+          <a id="downloadLink" class="download-link" href="#" hidden>下载已保存文件</a>
+        </div>
+
+        <section class="batch-panel">
+          <h2>页面工具</h2>
+          <button id="unifySizeButton" class="secondary-button full-width-button" type="button">一键统一页面尺寸</button>
+          <p id="pageToolStatus" class="mini-status">统一尺寸会在保存时生效，内容等比缩放且不裁切。</p>
+        </section>
+      </section>
+
+      <section class="tool-panel converter-panel">
+        <h2>PDF 转图片</h2>
+        <label class="compact-file">
+          <input id="convertFileInput" type="file" accept=".pdf,application/pdf">
+          <span>选择 PDF</span>
+        </label>
+        <button id="convertButton" class="secondary-button" type="button">转换为 PNG</button>
+        <button id="openConvertedFolderButton" class="path-button" type="button" hidden></button>
+        <div id="convertPreview" class="convert-preview" hidden>
+          <div class="preview-header">
+            <strong id="convertPreviewName">PDF 预览</strong>
+          </div>
+          <iframe id="convertPreviewFrame" title="PDF 预览"></iframe>
+        </div>
+        <p id="convertStatus" class="mini-status">转换后的图片会保存到 exports 文件夹。</p>
+      </section>
+
+      <p id="status" class="status">准备就绪</p>
+    </aside>
+
+    <section class="workspace">
+      <header class="workspace-header">
+        <div>
+          <h2>页面顺序</h2>
+          <p class="muted">拖动页面卡片调整顺序；可单页旋转或删除。</p>
+        </div>
+        <span id="pageCount" class="counter">0 页</span>
+      </header>
+
+      <div id="pages" class="pages empty">
+        <p>还没有页面</p>
+      </div>
+    </section>
+
+    <aside class="history-sidebar">
+      <header>
+        <h2>历史项目</h2>
+        <p class="muted">点击项目可恢复到当前工作区。</p>
+      </header>
+      <div id="projectHistory" class="history-list">
+        <p class="history-empty">暂无历史项目</p>
+      </div>
+    </aside>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
