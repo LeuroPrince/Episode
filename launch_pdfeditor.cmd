@@ -1,2 +1,2 @@
 @echo off
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0launch_pdfeditor.ps1"
+call "%~dp0launch_episode.cmd"
