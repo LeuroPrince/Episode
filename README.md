@@ -215,6 +215,7 @@ Episode 会使用 Windows 的 `explorer.exe /n,/select` 请求选中具体文件
 ## 注意事项
 
 - Episode 是本地工具，不会主动上传文件到外部服务器。
-- `workspace/uploads` 和 `workspace/exports` 是运行时目录，默认不会提交到 Git。
+- `workspace` 是本地运行目录，导入的 PDF、图片、导出的 PDF 和转换后的图片都只保存在本地电脑。
+- GitHub 仓库只公开工具源码；`.gitignore` 会忽略 `workspace` 下的运行文件，只保留 `uploads` 和 `exports` 两个空目录占位文件。
 - PDF 编辑、统一页面大小和 PDF 转图片都会生成新文件，不会自动覆盖原始上传文件。
 - 处理大量高清 PDF 或图片时，转换和预览可能需要等待一段时间。

@@ -6,11 +6,11 @@ __pycache__/
 venv/
 env/
 
-workspace/uploads/*
-workspace/exports/*
-workspace/test_inputs/*
-workspace/*.png
+workspace/**
+!workspace/
+!workspace/uploads/
 !workspace/uploads/.gitkeep
+!workspace/exports/
 !workspace/exports/.gitkeep
 
 *.log
