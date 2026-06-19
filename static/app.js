@@ -20,10 +20,18 @@ const convertPreview = document.querySelector("#convertPreview");
 const convertPreviewFrame = document.querySelector("#convertPreviewFrame");
 const convertPreviewName = document.querySelector("#convertPreviewName");
 const convertStatus = document.querySelector("#convertStatus");
+const imageMergeInput = document.querySelector("#imageMergeInput");
+const imagePdfNameInput = document.querySelector("#imagePdfName");
+const mergeImagesButton = document.querySelector("#mergeImagesButton");
+const openMergedPdfButton = document.querySelector("#openMergedPdfButton");
+const downloadMergedPdfLink = document.querySelector("#downloadMergedPdfLink");
+const imageMergeStatus = document.querySelector("#imageMergeStatus");
 const projectHistory = document.querySelector("#projectHistory");
 let lastExportFilename = null;
 let lastExportPath = null;
 let lastConvertedFolderName = null;
+let lastMergedPdfFilename = null;
+let lastMergedPdfPath = null;
 let convertPreviewUrl = null;
 let thumbnailVersion = 0;
 const selectedPageIds = new Set();
@@ -54,6 +62,15 @@ function clearConvertedFolderAction() {
   lastConvertedFolderName = null;
   openConvertedFolderButton.hidden = true;
   openConvertedFolderButton.textContent = "";
+}
+
+function clearMergedPdfActions() {
+  lastMergedPdfFilename = null;
+  lastMergedPdfPath = null;
+  openMergedPdfButton.hidden = true;
+  openMergedPdfButton.textContent = "";
+  downloadMergedPdfLink.hidden = true;
+  downloadMergedPdfLink.removeAttribute("href");
 }
 
 function clearConvertPreview() {
@@ -471,6 +488,61 @@ openConvertedFolderButton.addEventListener("click", async () => {
     convertStatus.textContent = `已打开：${data.path}`;
   } catch (error) {
     convertStatus.textContent = error.message;
+  }
+});
+
+imageMergeInput.addEventListener("change", () => {
+  clearMergedPdfActions();
+  const count = imageMergeInput.files.length;
+  imageMergeStatus.textContent = count
+    ? `已选择 ${count} 张图片，将按当前选择顺序合并。`
+    : "选择多张图片后，会按选择顺序合并为 PDF 并保存到 exports 文件夹。";
+});
+
+mergeImagesButton.addEventListener("click", async () => {
+  const files = Array.from(imageMergeInput.files);
+  if (!files.length) {
+    imageMergeStatus.textContent = "请先选择至少一张图片。";
+    return;
+  }
+
+  try {
+    clearMergedPdfActions();
+    imageMergeStatus.textContent = "正在合并图片并保存 PDF...";
+    const formData = new FormData();
+    formData.append("filename", imagePdfNameInput.value || "images.pdf");
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
+    const data = await requestJson("/api/merge-images-to-pdf", {
+      method: "POST",
+      body: formData,
+    });
+    lastMergedPdfFilename = data.outputName;
+    lastMergedPdfPath = data.path;
+    downloadMergedPdfLink.href = data.downloadUrl;
+    downloadMergedPdfLink.hidden = false;
+    openMergedPdfButton.textContent = `定位到图片合并 PDF：${data.path}`;
+    openMergedPdfButton.hidden = false;
+    imageMergeStatus.textContent = `已合并 ${data.count} 张图片：${data.path}`;
+  } catch (error) {
+    imageMergeStatus.textContent = error.message;
+  }
+});
+
+openMergedPdfButton.addEventListener("click", async () => {
+  if (!lastMergedPdfFilename && !lastMergedPdfPath) return;
+  try {
+    imageMergeStatus.textContent = "正在请求资源管理器选中输出 PDF...";
+    const data = await requestJson("/api/open-folder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: lastMergedPdfFilename, path: lastMergedPdfPath }),
+    });
+    imageMergeStatus.textContent = `已请求选中：${data.path}`;
+  } catch (error) {
+    imageMergeStatus.textContent = error.message;
   }
 });
 

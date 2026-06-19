@@ -59,6 +59,21 @@
       </section>
 
       <p id="status" class="status">准备就绪</p>
+      <section class="tool-panel converter-panel">
+        <h2>图片合并 PDF</h2>
+        <label class="compact-file">
+          <input id="imageMergeInput" type="file" multiple accept="image/*">
+          <span>选择多张图片</span>
+        </label>
+        <div class="field">
+          <label for="imagePdfName">合并后 PDF 文件名</label>
+          <input id="imagePdfName" type="text" value="images.pdf" autocomplete="off">
+        </div>
+        <button id="mergeImagesButton" class="secondary-button" type="button">合并并保存 PDF</button>
+        <button id="openMergedPdfButton" class="path-button" type="button" hidden></button>
+        <a id="downloadMergedPdfLink" class="download-link" href="#" hidden>下载图片合并 PDF</a>
+        <p id="imageMergeStatus" class="mini-status">选择多张图片后，会按选择顺序合并为 PDF 并保存到 exports 文件夹。</p>
+      </section>
     </aside>
 
     <section class="workspace">

@@ -13,7 +13,7 @@ from typing import Any
 
 import fitz
 from flask import Flask, jsonify, render_template, request, send_file
-from PIL import Image
+from PIL import Image, ImageOps
 from werkzeug.utils import secure_filename
 
 
@@ -95,6 +95,22 @@ def path_is_in_exports(path: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def image_for_pdf(path: Path) -> Image.Image:
+    image = ImageOps.exif_transpose(Image.open(path))
+    if image.mode == "RGB":
+        return image
+
+    if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
+        background = Image.new("RGB", image.size, "white")
+        background.paste(image.convert("RGBA"), mask=image.convert("RGBA").getchannel("A"))
+        image.close()
+        return background
+
+    converted = image.convert("RGB")
+    image.close()
+    return converted
 
 
 def serialize_page(page: PageItem) -> dict[str, Any]:
@@ -521,6 +537,52 @@ def convert_pdf_to_images():
             "folderName": folder_name,
             "folderPath": str(output_folder),
             "files": saved_files,
+        }
+    )
+
+
+@app.post("/api/merge-images-to-pdf")
+def merge_images_to_pdf():
+    uploaded_files = request.files.getlist("files")
+    if not uploaded_files:
+        return jsonify({"error": "请选择至少一张图片。"}), 400
+
+    output_name = safe_output_name(request.form.get("filename", "images.pdf"))
+    output_path = export_path_for_name(output_name)
+    temp_path = EXPORT_DIR / f".{uuid.uuid4().hex}_{output_name}"
+    pdf_images: list[Image.Image] = []
+
+    try:
+        for file_storage in uploaded_files:
+            if not file_storage or not file_storage.filename:
+                continue
+            suffix = Path(file_storage.filename).suffix.lower()
+            if suffix not in ALLOWED_SUFFIXES or suffix == ".pdf":
+                return jsonify({"error": "只能合并图片文件。"}), 400
+
+            stored_name = f"{uuid.uuid4().hex}_{secure_filename(file_storage.filename) or 'image'}"
+            stored_path = UPLOAD_DIR / stored_name
+            file_storage.save(stored_path)
+            pdf_images.append(image_for_pdf(stored_path))
+
+        if not pdf_images:
+            return jsonify({"error": "请选择至少一张图片。"}), 400
+
+        first_image, *extra_images = pdf_images
+        first_image.save(temp_path, "PDF", save_all=True, append_images=extra_images)
+        shutil.move(temp_path, output_path)
+    finally:
+        for image in pdf_images:
+            image.close()
+        if temp_path.exists():
+            temp_path.unlink()
+
+    return jsonify(
+        {
+            "count": len(pdf_images),
+            "downloadUrl": f"/download/{output_name}",
+            "outputName": output_name,
+            "path": str(output_path),
         }
     )
 
