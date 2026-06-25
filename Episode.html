@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Episode 本地启动页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18211f;
+      --muted: #5f6b66;
+      --line: #d8ded8;
+      --accent: #24745c;
+      --accent-dark: #15533f;
+      --paper: #fbfcf8;
+      --panel: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      width: min(760px, 100%);
+      display: grid;
+      gap: 18px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 18px 50px rgba(24, 33, 31, 0.08);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .status {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7f9f5;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    a,
+    button {
+      min-height: 44px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      background: #f7f8f4;
+      color: var(--ink);
+    }
+
+    code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #eef2ec;
+      color: var(--accent-dark);
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    ol {
+      margin: 0;
+      padding-left: 22px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div>
+      <h1>Episode</h1>
+      <p>这是 Episode 的本地离线启动页。它不需要互联网，只会连接你电脑上的本地服务 <code>127.0.0.1:7865</code>。</p>
+    </div>
+
+    <div id="status" class="status">正在检查本地服务...</div>
+
+    <div class="actions">
+      <a class="primary" href="http://127.0.0.1:7865/">打开 Episode</a>
+      <button class="secondary" type="button" id="checkButton">重新检查</button>
+    </div>
+
+    <p>如果无法打开工具，请先双击同一文件夹里的 <code>launch_episode.cmd</code> 启动本地服务，然后再点击“打开 Episode”。</p>
+
+    <ol>
+      <li>第一次在新电脑上使用时，先安装 Python，并运行 <code>python -m pip install -r requirements.txt</code>。</li>
+      <li>日常使用时，只需要双击 <code>launch_episode.cmd</code> 或打开本页。</li>
+      <li>导入和导出的文件只保存在本地 <code>workspace</code> 文件夹，不会自动上传到 GitHub。</li>
+    </ol>
+  </main>
+
+  <script>
+    const statusBox = document.querySelector("#status");
+    const checkButton = document.querySelector("#checkButton");
+
+    async function checkService() {
+      statusBox.textContent = "正在检查本地服务...";
+      try {
+        await fetch("http://127.0.0.1:7865/", { mode: "no-cors", cache: "no-store" });
+        statusBox.textContent = "本地服务可能已经启动。点击“打开 Episode”即可进入工具。";
+      } catch (error) {
+        statusBox.textContent = "本地服务未启动。请先双击 launch_episode.cmd，再重新检查。";
+      }
+    }
+
+    checkButton.addEventListener("click", checkService);
+    checkService();
+  </script>
+</body>
+</html>

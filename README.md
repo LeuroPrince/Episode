@@ -63,6 +63,14 @@ launch_episode.cmd
 
 脚本会启动 Flask 服务并打开浏览器。为避免杀毒软件误判，启动脚本不会隐藏后台进程，也不会自动监控文件或静默安装依赖。它会打开一个可见的命令行窗口运行本地服务，关闭该窗口即可停止 Episode。
 
+也可以打开本地离线启动页：
+
+```text
+Episode.html
+```
+
+这个 HTML 文件不依赖互联网，会检测本机 `127.0.0.1:7865` 服务是否可访问，并提供进入 Episode 的按钮。因为浏览器安全限制，纯 HTML 文件不能自动启动本地 Python 服务；如果检测到服务未启动，请先双击 `launch_episode.cmd`。
+
 也可以手动启动：
 
 ```powershell
@@ -185,6 +193,7 @@ PDF 转图片功能位于独立的工具区域，和 PDF 编辑区域分开。
 
 ```text
 Episode/
+  Episode.html            本地离线启动页
   app.py                  Flask 后端服务
   launch_episode.cmd      Windows 双击启动入口
   launch_pdfeditor.cmd    旧名称兼容入口
